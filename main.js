@@ -7,13 +7,15 @@ var checkState = [];
 var squareSize = 100;
 
 function init(){
-    for (var i = 0 ; i < numY ; i++)
-    for (var j = 0 ; j < numX ; j++){
+    for (var i = 0 ; i < numY ; i++){
         checkState[i] = [];
-        checkState[i][j] = 0;
+        for (var j = 0 ; j < numX ; j++){
+            checkState[i][j] = 0;
+        }
     }
 }
 
+// Inintalize canvas
 canvas.height = numY * squareSize;
 canvas.width =  numX * squareSize;
 canvas.style.backgroundColor = "#fff";
@@ -36,43 +38,77 @@ function DrawTable(){
                 ctx.font = "50px Arial";
                 ctx.fillStyle = "#D8A7B1";
                 // ctx.textAlign = "center";
-                ctx.fillText("O", j* squareSize , i * squareSize );
-                console.log(ctx.measureText("0").width,' ',ctx.measureText("0").height);
+                ctx.fillText("X", j* squareSize + 32 , i * squareSize + 65 );
+               
             }
             if (checkState[i][j] == 2){
                 ctx.font = "50px Arial";
                 ctx.fillStyle = "#D8A7B1";
                 // ctx.textAlign = "center";
-                ctx.fillText("O", j* squareSize + 40, i * 100 + 65);
+                ctx.fillText("O", j* squareSize + 32, i * squareSize + 65);
             }
         }
-        // console.log('\n');
+    
     }
 }
 
-function mouseClick(event){
-    var cRect = canvas.getBoundingClientRect();    
-    var x = Math.round(event.clientX - cRect.left);
-    var y = Math.round(event.clientY - cRect.top);
-    // console.log(x,' ',y);
+function playerPlay(x,y){
     for (var i = 0 ; i < numY ; i++)
     for (var j = 0 ; j < numX ; j++)
     {
         if (j*squareSize <=x && x<=j*squareSize + squareSize)
         if (i*squareSize <=y && y<=i*squareSize + squareSize){
-            checkState[i][j] = 1;
-            console.log(i,' ',j);
+            checkState[i][j] = 1;   
+            return;
         }
     }
+}
+
+function NPCPlay(){
+
+    var xNPC = Math.floor(Math.random() * numX);
+    var yNPC = Math.floor(Math.random() * numY);
+
+    var turnPlayed = 0;
+    for (var i = 0 ; i < numY ; i++)
+    for (var j = 0 ; j < numX ; j++)
+    {
+        if (checkState[i][j]!=0){
+            turnPlayed++;
+        }
+    }
+
+    if (turnPlayed == numX * numY) {
+        console.log('Finished',' ',turnPlayed,' ',numX * numY);
+        console.log(checkState);
+        return;
+    }
+
+    while (checkState[yNPC][xNPC] != 0){
+        xNPC = Math.floor(Math.random() * numX);
+        yNPC = Math.floor(Math.random() * numY);
+    }
+
+    checkState[yNPC][xNPC] = 2;
+}
+function mouseClick(event){
+    var cRect = canvas.getBoundingClientRect();    
+    var x = Math.round(event.clientX - cRect.left);
+    var y = Math.round(event.clientY - cRect.top);
+    playerPlay(x,y);
+    NPCPlay();
 }
 
 
 canvas.addEventListener('click',mouseClick);
 
+
+// Game 
 function GameLoop(){
     DrawTable();
     requestAnimationFrame(GameLoop);
 }
 
 init();
+//console.log(checkState);
 GameLoop();
